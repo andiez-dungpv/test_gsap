@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { gsap } from 'gsap';
 
@@ -30,36 +30,66 @@ const people = [
 ]
 
 function App() {
+  const [ tweent, setTweent ] = useState(null);
 
   useEffect(() => {
-    const tweent = gsap.to(".box", {rotation: 27, x: 100, duration: 1});
-    tweent.iteration(0);
-    gsap.registerEffect({
-      name: "fade",
-      effect: (targets, config) => {
-          return gsap.to(targets, {duration: config.duration, opacity: 0});
-      },
-      defaults: {duration: 1}, //defaults get applied to any "config" object passed to the effect
-      extendTimeline: true, //now you can call the effect directly on any GSAP timeline to have the result immediately inserted in the position you define (default is sequenced at the end)
-    });
-    document.querySelectorAll(".box").forEach(function(box) {
-      box.addEventListener("mouseenter", function() {
-        gsap.effects.fade(this)
-      });
+    let gsapWheel = document.querySelector('.gsap .wheel'),
+    numLines = 10,
+    radius = numLines * 40,
+    angle = 360 / numLines,
+    origin = `50% 50% -${radius}px`;
+
+    function cloneTxt(wheel) {
+    let txt = wheel.querySelector(".txt");
+    for (let i=0; i<numLines-1; i++) {
+      let clone = txt.cloneNode(true);
+      wheel.appendChild(clone);
+    }
+    }
+
+    // GSAP code
+    cloneTxt(gsapWheel);
+    // gsap.set(gsapWheel, {transformOrigin: "50% 50%"});
+    gsap.set(gsapWheel.querySelectorAll('.txt'), {
+      z: radius,
+      rotationX: index => angle * index,
+      transformOrigin: origin
+      }
+    );
+
+    gsap.to(gsapWheel, {
+      rotationX: -360,
+      duration: 8,
+      ease: 'none',
+      repeat: -1,
+      transformOrigin: "50% 50%",
     });
   }, []);
 
+  const startAni = () => {
+    tweent.play();
+  }
+  const stopAni = () => {
+    tweent.pause();
+  }
+  const resumeAni = () => {
+    tweent.resume();
+  }
+  const reverseAni = () => {
+  }
+
   return (
     <div id="demo">
-      <h2>GSAP 3 Effects Simple Demo</h2>
-      <div class="box green"></div>
-      <div class="box grey"></div>
-      <div class="box orange"></div>
-      <div class="box green"></div>
-      <div class="box grey"></div>
-      <div class="box orange"></div>
-      <div class="box green"></div>
-      <div class="box grey"></div>
+     <div class="container gsap">
+        <div class="wheel">
+          <div className='txt'>
+            <div>S</div>
+            <div>T</div>
+            <div>E</div>
+            <div>P</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
